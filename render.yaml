@@ -1,0 +1,23 @@
+# Blueprint do Render: cria o serviço já configurado a partir deste repositório.
+# No painel: New → Blueprint → aponte para este repo. Detalhes em docs/ONLINE.md.
+services:
+  - type: web
+    name: cortes-automaticos
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard          # 2 GB de RAM: o mínimo confortável para transcrever
+    region: oregon
+    healthCheckPath: /saude
+    disk:
+      name: dados
+      mountPath: /data      # sem isto os cortes somem a cada redeploy
+      sizeGB: 20
+    envVars:
+      - key: CORTES_WHISPER_MODEL
+        value: small
+      - key: CORTES_MAX_UPLOAD_MB
+        value: "2048"
+      - key: ANTHROPIC_API_KEY
+        sync: false         # preencher no painel; sem isso o seletor cai na heurística
+      - key: CORTES_WEB_TOKEN
+        sync: false         # opcional: exige ?token=... para abrir o site

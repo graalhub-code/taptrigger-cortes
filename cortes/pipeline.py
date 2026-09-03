@@ -12,6 +12,7 @@ import logging
 import re
 import unicodedata
 from pathlib import Path
+from typing import Callable
 
 from . import ffmpeg
 from .config import Config
@@ -41,7 +42,21 @@ def run_pipeline(
     *,
     reuse: bool = True,
     transcript_file: Path | None = None,
+    on_progress: Callable[[str, str], None] | None = None,
 ) -> RunReport:
+    """``on_progress(etapa, descricao)`` é chamado nas viradas de estágio.
+
+    Serve para a camada web mostrar em que pé está o processamento, que dura
+    minutos: sem isso quem enviou o vídeo fica olhando uma tela parada.
+    """
+
+    def progress(etapa: str, descricao: str) -> None:
+        if on_progress is not None:
+            try:
+                on_progress(etapa, descricao)
+            except Exception:  # aviso de progresso nunca derruba a rodada
+                logger.debug("callback de progresso falhou", exc_info=True)
+
     source = source.expanduser().resolve()
     if not source.exists():
         raise FileNotFoundError(f"vídeo não encontrado: {source}")
@@ -55,6 +70,7 @@ def run_pipeline(
     thumbs_dir.mkdir(parents=True, exist_ok=True)
 
     tracker = CostTracker()
+    progress("analisando", "lendo o arquivo de vídeo")
     media = ffmpeg.probe(source)
     logger.info(
         "fonte: %.1fs, %dx%d, %.2f fps, áudio=%s",
@@ -69,6 +85,7 @@ def run_pipeline(
     # --- áudio -----------------------------------------------------------
     wav_path = work_dir / "audio.wav"
     if not (reuse and wav_path.exists()):
+        progress("audio", "extraindo o áudio")
         with tracker.stage("audio", "cpu"):
             ffmpeg.extract_audio(source, wav_path)
 
@@ -85,6 +102,10 @@ def run_pipeline(
         logger.info("transcrição reaproveitada de %s", transcript_path)
     else:
         transcriber = build_transcriber(config.transcribe, duration=media.duration)
+        progress(
+            "transcricao",
+            f"transcrevendo {media.duration / 60:.0f} min de áudio (a etapa mais demorada)",
+        )
         with tracker.stage("transcricao", _transcription_hardware(config)):
             transcript = transcriber.transcribe(wav_path)
         dump_json(transcript, transcript_path)
@@ -92,6 +113,7 @@ def run_pipeline(
 
     # --- seleção de trechos ---------------------------------------------
     highlights_path = work_dir / "highlights.json"
+    progress("selecao", "escolhendo os melhores trechos")
     with tracker.stage("selecao", "rede"):
         chosen = highlights_stage.select_highlights(
             config, transcript, media.duration, tracker.llm_usage
@@ -102,6 +124,7 @@ def run_pipeline(
     # --- enquadramento, legenda e render --------------------------------
     clips: list[Clip] = []
     for index, highlight in enumerate(chosen, start=1):
+        progress("render", f"montando corte {index} de {len(chosen)}")
         stem = f"{index:02d}-{slugify(highlight.title)}"
 
         with tracker.stage(f"reframe:{index}", "cpu"):
@@ -173,6 +196,7 @@ def run_pipeline(
     dump_json(config.describe(), out_dir / "config-usado.json")
     review = build_review(report, out_dir)
     logger.info("página de revisão em %s", review)
+    progress("pronto", f"{len(clips)} cortes prontos")
     return report
 
 

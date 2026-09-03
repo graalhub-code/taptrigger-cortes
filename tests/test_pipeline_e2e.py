@@ -6,7 +6,6 @@ recorte, escala, legenda queimada e relatório de custo saem coerentes.
 
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -14,29 +13,13 @@ import pytest
 from cortes.config import Config
 from cortes.pipeline import run_pipeline, slugify
 
-ROOT = Path(__file__).resolve().parents[1]
-
 pytestmark = pytest.mark.skipif(
     shutil.which("ffmpeg") is None or shutil.which("ffprobe") is None,
     reason="ffmpeg/ffprobe não estão no PATH",
 )
 
 
-@pytest.fixture(scope="module")
-def sample_video(tmp_path_factory) -> Path:
-    destination = tmp_path_factory.mktemp("fonte") / "sample.mp4"
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "scripts" / "make_sample_video.py"),
-            str(destination),
-            "--duration",
-            "45",
-        ],
-        check=True,
-        capture_output=True,
-    )
-    return destination
+# A fixture sample_video vive em conftest.py, compartilhada com os testes web.
 
 
 def offline_config() -> Config:

@@ -5,7 +5,10 @@ verticais 9:16 com legenda queimada, prontos para TikTok/Reels/Shorts.
 
 Isto é o protótipo do passo 1 do brief: pipeline mínimo rodando ponta a ponta,
 com o custo de cada etapa medido, para decidir com número na mão se vale
-seguir. **Não é produto**: não tem painel, não tem fila, não tem cobrança.
+seguir. Roda por linha de comando ou como serviço web, com uma tela de envio e
+uma fila. **Ainda não é produto**: não tem cadastro nem cobrança.
+
+Para subir num endereço público: [docs/ONLINE.md](docs/ONLINE.md).
 
 ## Como funciona
 
@@ -24,6 +27,20 @@ vídeo longo
 
 Detalhes de cada etapa e onde ela roda: [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 Passo a passo para rodar o teste num Mac: [docs/RODANDO-NO-MAC.md](docs/RODANDO-NO-MAC.md).
+
+## Como serviço web
+
+```bash
+pip install -e '.[all,web]'
+uvicorn cortes.web.app:servidor --factory --port 8000
+```
+
+Abre uma tela de envio em `http://localhost:8000`: escolhe o arquivo, envia, e
+a página acompanha o processamento até mostrar os cortes. Em contêiner:
+
+```bash
+docker build -t cortes . && docker run -p 8000:8000 -v $PWD/dados:/data cortes
+```
 
 ## Instalação
 

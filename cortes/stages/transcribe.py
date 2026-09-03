@@ -37,11 +37,22 @@ class FasterWhisperTranscriber(Transcriber):
                 "ou rode com CORTES_TRANSCRIBER=fake."
             ) from exc
 
-        model = WhisperModel(
-            self.config.model,
-            device=self.config.device,
-            compute_type=self.config.compute_type,
-        )
+        try:
+            model = WhisperModel(
+                self.config.model,
+                device=self.config.device,
+                compute_type=self.config.compute_type,
+            )
+        except Exception as exc:
+            # Falha típica na primeira execução: a máquina não alcança o
+            # repositório de onde o modelo é baixado.
+            raise RuntimeError(
+                f"não consegui carregar o modelo de transcrição "
+                f"'{self.config.model}' ({type(exc).__name__}: {exc}). "
+                "Na primeira execução ele é baixado da internet — confira se a "
+                "máquina tem acesso de saída, ou use um modelo menor com "
+                "CORTES_WHISPER_MODEL=tiny."
+            ) from exc
         raw_segments, info = model.transcribe(
             str(wav_path),
             language=self.config.language or None,

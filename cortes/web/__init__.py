@@ -1,0 +1,1 @@
+"""Camada web do pipeline."""
