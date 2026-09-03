@@ -17,6 +17,7 @@ from . import ffmpeg
 from .config import Config
 from .costs import CostTracker
 from .models import Clip, RunReport, Transcript, dump_json
+from .review import build_review
 from .stages import highlights as highlights_stage
 from .stages import reframe as reframe_stage
 from .stages import render as render_stage
@@ -48,8 +49,10 @@ def run_pipeline(
     out_dir = out_dir.expanduser().resolve()
     work_dir = out_dir / "work"
     clips_dir = out_dir / "clips"
+    thumbs_dir = out_dir / "thumbs"
     work_dir.mkdir(parents=True, exist_ok=True)
     clips_dir.mkdir(parents=True, exist_ok=True)
+    thumbs_dir.mkdir(parents=True, exist_ok=True)
 
     tracker = CostTracker()
     media = ffmpeg.probe(source)
@@ -128,6 +131,15 @@ def run_pipeline(
                 source, destination, highlight, plan, config, work_dir, ass_file=ass_file
             )
 
+        # Miniatura do próprio corte, para a página de revisão mostrar o
+        # conteúdo sem depender do navegador decodificar o vídeo.
+        poster = thumbs_dir / f"{stem}.jpg"
+        try:
+            ffmpeg.extract_poster(destination, poster, min(1.0, highlight.duration / 3))
+        except ffmpeg.FFmpegError as exc:
+            logger.warning("miniatura do corte %02d falhou (%s)", index, exc)
+            poster = None
+
         clips.append(
             Clip(
                 index=index,
@@ -135,6 +147,7 @@ def run_pipeline(
                 path=str(destination),
                 crop_backend=plan.backend,
                 caption_count=caption_count,
+                poster=str(poster) if poster else "",
             )
         )
         logger.info(
@@ -158,6 +171,8 @@ def run_pipeline(
     )
     dump_json(report, out_dir / "report.json")
     dump_json(config.describe(), out_dir / "config-usado.json")
+    review = build_review(report, out_dir)
+    logger.info("página de revisão em %s", review)
     return report
 
 

@@ -120,6 +120,17 @@ def test_escreve_relatorio_com_custo_por_minuto(run_result):
     assert report.cost["tempo"]["video_fonte_s"] == pytest.approx(45.0, abs=1.0)
 
 
+def test_gera_pagina_de_revisao_com_miniaturas(run_result):
+    report, out_dir = run_result
+    pagina = out_dir / "revisao.html"
+    assert pagina.exists()
+    html = pagina.read_text(encoding="utf-8")
+    assert html.count("<article") == len(report.clips)
+    for clip in report.clips:
+        assert Path(clip.poster).exists(), "toda miniatura citada tem de existir no disco"
+        assert Path(clip.poster).stat().st_size > 1000
+
+
 def test_guarda_intermediarios_para_reaproveitar(run_result):
     _, out_dir = run_result
     work = out_dir / "work"

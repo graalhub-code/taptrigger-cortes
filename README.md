@@ -54,11 +54,18 @@ Saída:
 
 ```
 saida/
-├── clips/01-o-plot-twist-da-live.mp4   ← 1080x1920, legenda queimada
+├── revisao.html                         ← abra este: todos os cortes numa tela
+├── clips/01-o-plot-twist-da-live.mp4    ← 1080x1920, legenda queimada
+├── thumbs/01-o-plot-twist-da-live.jpg   ← miniatura de cada corte
 ├── report.json                          ← tempo por etapa e custo por minuto
 ├── config-usado.json
 └── work/                                ← transcript, planos de recorte, .ass
 ```
+
+Abra `revisao.html` com dois cliques: ele mostra os cortes lado a lado com
+player, o trecho de onde cada um veio, a nota, o motivo da escolha e o custo
+da rodada. É a tela para julgar o resultado — arquivo solto, sem servidor e
+sem internet. Não é a interface do produto; é folha de revisão do teste.
 
 `work/` existe para não repagar o caro: rodar de novo no mesmo diretório
 reaproveita a transcrição, então dá para iterar em legenda e enquadramento de
@@ -111,6 +118,7 @@ Verificado neste repositório:
   assunto em movimento, sem o assunto sair do quadro;
 - legenda queimada com acentuação correta, quebrada em blocos de 2 a 4 palavras;
 - seleção heurística escolhendo o trecho com mais gancho num texto pt-BR real;
+- página de revisão com miniaturas, aberta no navegador;
 - fallback do seletor quando a chamada ao Claude falha;
 - contabilidade de custo e reaproveitamento da transcrição entre rodadas.
 

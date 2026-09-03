@@ -115,6 +115,31 @@ def extract_audio(source: Path, destination: Path, *, sample_rate: int = 16000) 
     return destination
 
 
+def extract_poster(source: Path, destination: Path, at_seconds: float = 1.0) -> Path:
+    """Tira um quadro do corte para servir de miniatura na página de revisão."""
+    ensure_available()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    run(
+        [
+            "ffmpeg",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-ss",
+            f"{max(0.0, at_seconds):.2f}",
+            "-i",
+            str(source),
+            "-frames:v",
+            "1",
+            "-q:v",
+            "4",
+            str(destination),
+        ]
+    )
+    return destination
+
+
 def escape_filter_path(path: Path | str) -> str:
     """Escapa um caminho para uso dentro de um filtergraph do ffmpeg."""
     text = str(path)

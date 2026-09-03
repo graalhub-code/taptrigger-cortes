@@ -159,6 +159,7 @@ class Clip:
     path: str
     crop_backend: str
     caption_count: int
+    poster: str = ""
 
 
 @dataclass
