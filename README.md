@@ -23,6 +23,7 @@ vídeo longo
 ```
 
 Detalhes de cada etapa e onde ela roda: [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+Passo a passo para rodar o teste num Mac: [docs/RODANDO-NO-MAC.md](docs/RODANDO-NO-MAC.md).
 
 ## Instalação
 
@@ -80,6 +81,7 @@ graça. `--no-reuse` força refazer tudo.
 | `--transcriber faster-whisper\|fake` | `fake` usa transcrição pronta, não roda modelo |
 | `--whisper-model tiny…large-v3` | tamanho do modelo (padrão `medium`) |
 | `--reframe auto\|face\|motion\|center` | como o recorte segue o assunto |
+| `--min-clip` / `--max-clip` | duração mínima e máxima de cada corte, em segundos |
 | `--transcript ARQUIVO` | usa uma transcrição pronta |
 | `--no-captions` | não queima legenda |
 

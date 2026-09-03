@@ -49,6 +49,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="como o recorte vertical segue o assunto (padrão: auto)",
     )
     run.add_argument(
+        "--min-clip", type=float, default=None, help="duração mínima do corte em segundos"
+    )
+    run.add_argument(
+        "--max-clip", type=float, default=None, help="duração máxima do corte em segundos"
+    )
+    run.add_argument(
         "--transcript",
         type=Path,
         default=None,
@@ -72,6 +78,10 @@ def _build_parser() -> argparse.ArgumentParser:
 def _apply_overrides(config: Config, args: argparse.Namespace) -> Config:
     if args.clips is not None:
         config.clips = args.clips
+    if args.min_clip is not None:
+        config.min_clip_seconds = args.min_clip
+    if args.max_clip is not None:
+        config.max_clip_seconds = args.max_clip
     if args.selector is not None:
         config.selector.backend = args.selector
     if args.transcriber is not None:
