@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Saídas do pipeline e material de teste
+*.mp4
+*.wav
+*.ass
+*.onnx
+/out/
+/saida/
+*-cortes/

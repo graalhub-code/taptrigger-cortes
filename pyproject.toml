@@ -1,0 +1,35 @@
+[project]
+name = "cortes"
+version = "0.1.0"
+description = "Pipeline de cortes automáticos de vídeo (horizontal -> vertical 9:16 com legenda queimada)"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+# Transcrição real. Roda em CPU (lento) ou GPU (rápido, é o alvo da máquina alugada).
+transcribe = ["faster-whisper>=1.0"]
+# Detecção de rosto/movimento para o reenquadramento vertical.
+reframe = ["opencv-python-headless>=4.9", "numpy>=1.24"]
+# Seleção de highlights via Claude.
+llm = ["anthropic>=1.0", "pydantic>=2.0"]
+dev = ["pytest>=8.0"]
+all = [
+    "faster-whisper>=1.0",
+    "opencv-python-headless>=4.9",
+    "numpy>=1.24",
+    "anthropic>=1.0",
+    "pydantic>=2.0",
+]
+
+[project.scripts]
+cortes = "cortes.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["cortes*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
