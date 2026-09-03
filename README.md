@@ -106,7 +106,7 @@ máquina que for contratada. Como medir: [docs/CUSTOS.md](docs/CUSTOS.md).
 pytest
 ```
 
-64 testes. Os de ponta a ponta geram um vídeo com o ffmpeg, rodam o pipeline
+73 testes. Os de ponta a ponta geram um vídeo com o ffmpeg, rodam o pipeline
 inteiro e conferem dimensão, duração, sobreposição e relatório — levam ~45 s.
 
 ## O que já foi verificado rodando, e o que não
